@@ -39,7 +39,7 @@ all:
               ansible_host: 192.168.0.12
             spine3:
               ansible_host: 192.168.0.13
-            spine4:
+            spine4: 
               ansible_host: 192.168.0.14
         LEAFS:
           vars: 

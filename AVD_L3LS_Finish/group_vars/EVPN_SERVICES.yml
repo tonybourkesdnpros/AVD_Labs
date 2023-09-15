@@ -24,4 +24,3 @@ tenants:
           - ip_address: 10.1.5.254
             remote_as: 1
             nodes: [leaf4]
-

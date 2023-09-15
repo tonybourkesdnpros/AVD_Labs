@@ -22,4 +22,3 @@ servers:
         port_channel:
           description: PortChannel host3
           mode: active
-
