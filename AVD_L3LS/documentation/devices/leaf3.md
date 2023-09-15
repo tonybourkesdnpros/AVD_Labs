@@ -226,9 +226,10 @@ vlan 4094
 
 | Interface | Description | Type | Channel Group | IP Address | VRF |  MTU | Shutdown | ACL In | ACL Out |
 | --------- | ----------- | -----| ------------- | ---------- | ----| ---- | -------- | ------ | ------- |
-| Ethernet3 | P2P_LINK_TO_SPINE1_Ethernet5 | routed | - | 192.168.103.13/31 | default | 1500 | False | - | - |
-| Ethernet4 | P2P_LINK_TO_SPINE2_Ethernet5 | routed | - | 192.168.103.15/31 | default | 1500 | False | - | - |
-| Ethernet5 | P2P_LINK_TO_SPINE3_Ethernet5 | routed | - | 192.168.103.17/31 | default | 1500 | False | - | - |
+| Ethernet3 | P2P_LINK_TO_SPINE1_Ethernet5 | routed | - | 192.168.103.17/31 | default | 1500 | False | - | - |
+| Ethernet4 | P2P_LINK_TO_SPINE2_Ethernet5 | routed | - | 192.168.103.19/31 | default | 1500 | False | - | - |
+| Ethernet5 | P2P_LINK_TO_SPINE3_Ethernet5 | routed | - | 192.168.103.21/31 | default | 1500 | False | - | - |
+| Ethernet6 | P2P_LINK_TO_SPINE4_Ethernet5 | routed | - | 192.168.103.23/31 | default | 1500 | False | - | - |
 
 #### Ethernet Interfaces Device Configuration
 
@@ -249,21 +250,28 @@ interface Ethernet3
    no shutdown
    mtu 1500
    no switchport
-   ip address 192.168.103.13/31
+   ip address 192.168.103.17/31
 !
 interface Ethernet4
    description P2P_LINK_TO_SPINE2_Ethernet5
    no shutdown
    mtu 1500
    no switchport
-   ip address 192.168.103.15/31
+   ip address 192.168.103.19/31
 !
 interface Ethernet5
    description P2P_LINK_TO_SPINE3_Ethernet5
    no shutdown
    mtu 1500
    no switchport
-   ip address 192.168.103.17/31
+   ip address 192.168.103.21/31
+!
+interface Ethernet6
+   description P2P_LINK_TO_SPINE4_Ethernet5
+   no shutdown
+   mtu 1500
+   no switchport
+   ip address 192.168.103.23/31
 !
 interface Ethernet7
    description host3_Ethernet1
@@ -557,9 +565,11 @@ ip route vrf MGMT 0.0.0.0/0 192.168.0.1
 | 192.168.101.11 | 65001 | default | - | Inherited from peer group EVPN-OVERLAY-PEERS | Inherited from peer group EVPN-OVERLAY-PEERS | - | Inherited from peer group EVPN-OVERLAY-PEERS | - | - | - |
 | 192.168.101.12 | 65001 | default | - | Inherited from peer group EVPN-OVERLAY-PEERS | Inherited from peer group EVPN-OVERLAY-PEERS | - | Inherited from peer group EVPN-OVERLAY-PEERS | - | - | - |
 | 192.168.101.13 | 65001 | default | - | Inherited from peer group EVPN-OVERLAY-PEERS | Inherited from peer group EVPN-OVERLAY-PEERS | - | Inherited from peer group EVPN-OVERLAY-PEERS | - | - | - |
-| 192.168.103.12 | 65001 | default | - | Inherited from peer group IPv4-UNDERLAY-PEERS | Inherited from peer group IPv4-UNDERLAY-PEERS | - | - | - | - | - |
-| 192.168.103.14 | 65001 | default | - | Inherited from peer group IPv4-UNDERLAY-PEERS | Inherited from peer group IPv4-UNDERLAY-PEERS | - | - | - | - | - |
+| 192.168.101.14 | 65001 | default | - | Inherited from peer group EVPN-OVERLAY-PEERS | Inherited from peer group EVPN-OVERLAY-PEERS | - | Inherited from peer group EVPN-OVERLAY-PEERS | - | - | - |
 | 192.168.103.16 | 65001 | default | - | Inherited from peer group IPv4-UNDERLAY-PEERS | Inherited from peer group IPv4-UNDERLAY-PEERS | - | - | - | - | - |
+| 192.168.103.18 | 65001 | default | - | Inherited from peer group IPv4-UNDERLAY-PEERS | Inherited from peer group IPv4-UNDERLAY-PEERS | - | - | - | - | - |
+| 192.168.103.20 | 65001 | default | - | Inherited from peer group IPv4-UNDERLAY-PEERS | Inherited from peer group IPv4-UNDERLAY-PEERS | - | - | - | - | - |
+| 192.168.103.22 | 65001 | default | - | Inherited from peer group IPv4-UNDERLAY-PEERS | Inherited from peer group IPv4-UNDERLAY-PEERS | - | - | - | - | - |
 | 10.255.251.5 | Inherited from peer group MLAG-IPv4-UNDERLAY-PEER | VRF_A | - | Inherited from peer group MLAG-IPv4-UNDERLAY-PEER | Inherited from peer group MLAG-IPv4-UNDERLAY-PEER | - | - | - | - | - |
 
 #### Router BGP EVPN Address Family
@@ -622,15 +632,21 @@ router bgp 65299
    neighbor 192.168.101.13 peer group EVPN-OVERLAY-PEERS
    neighbor 192.168.101.13 remote-as 65001
    neighbor 192.168.101.13 description spine3
-   neighbor 192.168.103.12 peer group IPv4-UNDERLAY-PEERS
-   neighbor 192.168.103.12 remote-as 65001
-   neighbor 192.168.103.12 description spine1_Ethernet5
-   neighbor 192.168.103.14 peer group IPv4-UNDERLAY-PEERS
-   neighbor 192.168.103.14 remote-as 65001
-   neighbor 192.168.103.14 description spine2_Ethernet5
+   neighbor 192.168.101.14 peer group EVPN-OVERLAY-PEERS
+   neighbor 192.168.101.14 remote-as 65001
+   neighbor 192.168.101.14 description spine4
    neighbor 192.168.103.16 peer group IPv4-UNDERLAY-PEERS
    neighbor 192.168.103.16 remote-as 65001
-   neighbor 192.168.103.16 description spine3_Ethernet5
+   neighbor 192.168.103.16 description spine1_Ethernet5
+   neighbor 192.168.103.18 peer group IPv4-UNDERLAY-PEERS
+   neighbor 192.168.103.18 remote-as 65001
+   neighbor 192.168.103.18 description spine2_Ethernet5
+   neighbor 192.168.103.20 peer group IPv4-UNDERLAY-PEERS
+   neighbor 192.168.103.20 remote-as 65001
+   neighbor 192.168.103.20 description spine3_Ethernet5
+   neighbor 192.168.103.22 peer group IPv4-UNDERLAY-PEERS
+   neighbor 192.168.103.22 remote-as 65001
+   neighbor 192.168.103.22 description spine4_Ethernet5
    redistribute connected route-map RM-CONN-2-BGP
    !
    vlan 10
