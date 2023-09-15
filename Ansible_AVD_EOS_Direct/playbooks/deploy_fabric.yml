@@ -1,0 +1,7 @@
+---
+- name: Deploy fabric to EOS directly
+  hosts: FABRIC
+  tasks:
+    - name: Deploy to EOS
+      import_role:
+        name: arista.avd.eos_config_deploy_eapi

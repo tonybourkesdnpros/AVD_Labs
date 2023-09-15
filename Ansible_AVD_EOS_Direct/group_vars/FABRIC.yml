@@ -1,0 +1,128 @@
+---
+
+fabric_name: FABRIC
+
+# Various fabric settings
+
+# Enable vlan aware bundles
+vxlan_vlan_aware_bundles: true
+
+
+# Spine Switches
+spine:
+  defaults:
+#    platform: vEOS-LAB # 
+    bgp_as: 65001
+    loopback_ipv4_pool: 192.168.101.0/24
+    bgp_defaults:
+      - 'no bgp default ipv4-unicast'
+      - 'distance bgp 20 200 200'
+    mlag: false
+  nodes:
+    spine1:
+      id: 11
+      mgmt_ip: 192.168.0.11/24
+    spine2:
+      id: 12
+      mgmt_ip: 192.168.0.12/24
+    spine3:
+      id: 13
+      mgmt_ip: 192.168.0.13/24
+
+# Leaf switches. Most leafs will be l3leaf, not l2leaf.
+l3leaf:
+  defaults:
+    bgp_as: 65100-65199 # Gives a range which will be auto-assigned
+#    platform: vEOS-LAB
+    loopback_ipv4_pool: 192.168.101.0/24 # This is loopback0 (underlay)
+    vtep_loopback_ipv4_pool: 192.168.102.0/24 # This is loopback1 (VTEP)
+    uplink_interfaces: [Ethernet3, Ethernet4, Ethernet5] # Leaf uplinks
+    uplink_switches: [spine1, spine2, spine3] # Where the leaf uplinks go
+    uplink_ipv4_pool: 192.168.103.0/24 # For the p2p interfaces to chopped up into /31s
+    mlag_interfaces: [Ethernet1, Ethernet2] # MLAG peer link
+    mlag_peer_ipv4_pool: 10.255.252.0/24 # MLAG peer IPs
+    mlag_peer_l3_ipv4_pool: 10.255.251.0/24 # iBGP peering between MLAG peers
+    virtual_router_mac_address: 00:1c:73:00:00:99 # The vMAC for the anycast gateways
+    bgp_defaults:
+      - 'no bgp default ipv4-unicast'
+      - 'distance bgp 20 200 200'
+      - 'graceful-restart restart-time 300'
+      - 'graceful-restart'
+    spanning_tree_mode: mstp # Spanning Tree is still enabled even in EVPN setups
+    spanning_tree_priority: 16384 
+    mlag: true # By default, use MLAG
+
+  node_groups:
+    mlag1:
+      nodes:
+        leaf1:
+          id: 1
+          mgmt_ip: 192.168.0.21/24
+          uplink_switch_interfaces: [Ethernet2, Ethernet2, Ethernet1]
+        leaf2:
+          id: 2
+          mgmt_ip: 192.168.0.22/24
+          uplink_switch_interfaces: [Ethernet3, Ethernet3, Ethernet2]
+    mlag2:
+      nodes:
+        leaf3:
+          id: 3
+          mgmt_ip: 192.168.0.23/24
+          uplink_switch_interfaces: [Ethernet4, Ethernet4, Ethernet3]
+        leaf4:
+          id: 4
+          mgmt_ip: 192.168.0.24/24
+          uplink_switch_interfaces: [Ethernet5, Ethernet5, Ethernet4]
+
+
+
+# There's an issue with vEOS with larger MTUs
+p2p_uplinks_mtu: 1500
+
+# BFD Settings
+# bfd_multihop:
+#   interval: 1200
+#   min_rx: 1200
+#   multiplier: 3
+
+
+# # If you want to put a password on peers
+# bgp_peer_groups:
+#   # all passwords set to "arista"
+#   evpn_overlay_peers:
+#     password: Q4fqtbqcZ7oQuKfuWtNGRQ==
+#   ipv4_underlay_peers:
+#     password: 7x4B4rnJhZB438m9+BrBfQ==
+#   mlag_ipv4_underlay_peer:
+#     password: 4b21pAdCvWeAqpcKDFMdWw==
+
+
+# Needed for Arista ATD Lab Environment
+dns_domain: atd.lab
+mgmt_interface: Management1
+mgmt_interface_vrf: default
+mgmt_gateway: 192.168.0.1
+
+
+### This section is for deploying direclty to EOS and the additional information needed that would otherwise be in a separate configlet
+
+local_users:
+  arista:
+    privilege: 15
+    role: network-admin
+    ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCz2+rOUtMZi/xU3dOywlTdK/acsdjq0L16W0yRzYt+4jzF7r9p3/6h/yJfjNxQemQN9WRYjYO6HfbOUlixM8YDRG1KaQflTs1mCMBZzsjTcP5nXRnoYb31W+6leuCVvdfBWat7AmisyadiwemBJDnVZltyCejTETmCedGMPnqe7cobedHras59/IiZ+Zw94VK9aJ4kw14acNMmAIy1eMXGfbE3BK6wqRBlNM50M16WWINzjGaS8WlJ0nSk22rveF6RTHPtcn9QqJqoMIFRTQjXLqPav2HYMMoKs6nOUYoOi1jJ2Wtf6c6nQOmPKLYLfl7bfHMBRmledJITp+wL9uYt arista@recordvideobackup-spare-1-d98f0486
+    sha512_password: $6$eSRalRz7SqSuuU6L$Gj2p7O2vdpg5P05PgDg956pPDnXfW9YDP0kK2D/9flwwT7/CfFsT9C9k1WPPleBKYhdZC/n/8nB7cTx.GJwa1.
+
+  admin:
+    privilege: 15
+    role: network-admin
+    sha512_password: $6$eSRalRz7SqSuuU6L$Gj2p7O2vdpg5P05PgDg956pPDnXfW9YDP0kK2D/9flwwT7/CfFsT9C9k1WPPleBKYhdZC/n/8nB7cTx.GJwa1.
+
+cvp_instance_ip: 192.168.0.5
+
+cvp_ingestauth_key: atd-lab
+# cvp_token_file is only applicable to CV as a Service
+#cvp_token_file: < 'path_to_token_file_on_switch' | default -> '/tmp/cv-onboarding-token' >
+terminattr_ingestgrpcurl_port: 9910
+terminattr_smashexcludes: "ale,flexCounter,hardware,kni,pulse,strata"
+terminattr_ingestexclude: "/Sysdb/cell/1/agent,/Sysdb/cell/2/agent>"
